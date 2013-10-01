@@ -134,7 +134,7 @@ public class CheckContent {
 		return rightList;
 	}
 	
-	public static final String regex = "\\w+";
+	public static final String regex = "[\\w']+";
 	
 	private ArrayList<Words> rightList;
 	private ArrayList<Words> content;
