@@ -433,12 +433,22 @@ public class EnglishFrame extends JFrame{
 		
 		public void actionPerformed(ActionEvent e) {
 			chooser = new JFileChooser();
-			//chooser.showOpenDialog(MenuFrame.this);
 			chooser.setCurrentDirectory(new File("."));
-			//chooser.setCurrentDirectory(new File(lastPath));
-			chooser.showOpenDialog(null);
+			//设置文件过滤器
+			chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+				public boolean accept(File f) {
+					return f.isDirectory() || f.getName().endsWith(".mp3");
+				}
+
+				public String getDescription() {
+					return "MP3";
+				}
+			});
+
+			int r = chooser.showOpenDialog(null);
+			if(r != JFileChooser.APPROVE_OPTION) return ;
 			String name = chooser.getSelectedFile().getPath();
-			
+		
 			playInit(name);
 		}
 	}
