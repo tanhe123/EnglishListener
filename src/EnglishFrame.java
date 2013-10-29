@@ -4,6 +4,7 @@ import java.io.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.filechooser.FileFilter;
 
 public class EnglishFrame extends JFrame{
 	
@@ -55,6 +56,8 @@ public class EnglishFrame extends JFrame{
 		JMenu toolMenu = new JMenu("工具");
 		JMenuItem scoreItem = new JMenuItem("得分");
 		toolMenu.add(scoreItem);
+		checkItem = new JCheckBoxMenuItem("实时错误检查");
+		toolMenu.add(checkItem);
 		
 		// 帮助菜单
 		JMenu helpMenu = new JMenu("帮助");
@@ -106,7 +109,6 @@ public class EnglishFrame extends JFrame{
 //				System.out.println(mark2);
 			}
 		});
-		
 		
 		repeatItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -259,8 +261,45 @@ public class EnglishFrame extends JFrame{
 				score += "正确率: " + (int)((double)match/content.getPassageLength()*100) + "%" + "\n";
 				
 				JOptionPane.showMessageDialog(null, score);
-				
-				
+			}
+		});
+		
+		checkItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// TODO: 写完检查功能
+				if(checkItem.getState()) {
+					System.out.println("检查功能已打开");
+					if(lyricFile == null) {
+						JOptionPane.showMessageDialog(null, "请先选择听力文本");
+						chooser = new JFileChooser();
+						chooser.setCurrentDirectory(new File("."));
+						chooser.setFileFilter(new FileFilter() {
+							public String getDescription() {
+								return ".txt|.lrc";
+							}
+							
+							public boolean accept(File f) {
+								return f.isDirectory() || f.getPath().endsWith(".lrc") 
+										|| f.getPath().endsWith(".txt");
+							}
+						});
+						int ret = chooser.showOpenDialog(null);
+						
+						if(ret == JFileChooser.CANCEL_OPTION) {	//未选择文件
+							return ;
+						}
+						
+						lyricFile = new Lyric(chooser.getSelectedFile());
+					}
+					
+					content = new CheckContent();
+					if(lyricFile.getLyricPath().endsWith(".lrc")) 
+						content.setPassage(lyricFile.getLyricContent());
+					else 
+						content.setPassage(lyricFile.getTextContent());
+				} else {
+					System.out.println("检查功能已关闭");
+				}
 			}
 		});
 		
@@ -399,9 +438,7 @@ public class EnglishFrame extends JFrame{
 					textPane.NormalContent();
 					content.setContent(textPane.getText());
 					textPane.MarkContent(content.getRightList());
-				}
-				
-				// TODO 动态更新播放按钮的状态
+				}		
 			}
 		});
 	
@@ -489,11 +526,6 @@ public class EnglishFrame extends JFrame{
 		// 如果文本区是提示内容，则清空
 		if(textPane.getText().equals(HOWTOUSE)) 
 			textPane.setText("");
-		
-		// 设置content
-		content = new CheckContent();
-		content.setPassage(Lyric.getContent(Lyric.getLyric(player.getFilePath())));
-		//System.out.println(content.getPassageLength());
 	}
 	
 	private static final int BACK_FRAMES_PERCENT = 3;
@@ -505,8 +537,8 @@ public class EnglishFrame extends JFrame{
 	private JSlider slider;
 	private String fileName = "";
 	private String saveName = "";
-//	private String lyricPath = "";
 	private CheckContent content;		//CheckContent类
+	private Lyric lyricFile;	//歌词类
 	
 	private JFileChooser chooser;	
 	private PlayThread player;
@@ -521,6 +553,7 @@ public class EnglishFrame extends JFrame{
 	private JMenuItem backItem;
 	private JMenuItem forwardItem;
 	public JCheckBoxMenuItem lyricItem;
+	public JCheckBoxMenuItem checkItem;
 	
 	public JButton playButton;
 	private JButton forwardButton;
